@@ -1,0 +1,76 @@
+<html>
+
+<head>
+
+<title>Bloch Sphere</title>
+
+<p>
+<b>Simulation Created By Andrew Schmitt UC Berkeley Fall 2014.</b> Built using JavaScript software 3d renderer&nbsp; &copy 2009 Dean McNamee.
+</p>
+<p>
+  <b>Current time:</b><input id="cur_time" style="width: 65px" type="text" value="0" readonly>
+</p>
+
+<style>
+  body * {
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+  body.white {
+    background-color: white;
+    color: black;
+  }
+  body.black {
+    background-color: black;
+    color: white;
+  }
+  div.centeredDiv { text-align: center; }
+  li { list-style: none; }
+  td { padding-right: 10px; }
+  td.bold {
+    font-weight: bold;
+  }
+  input.input_error {
+    background-color: #EE0000;
+  }
+  input.white {
+    background-color: #FFFFFF;
+  }
+  table {
+    padding-right: 20px;
+    float: left;
+  }
+</style>
+
+<script src="./pre3d/pre3d.js"></script>
+<script src="./pre3d/pre3d_shape_utils.js"></script>
+<script src="./pre3d/pre3d_path_utils.js"></script>
+<script src="./pre3d/demo_utils.js"></script>
+<script src="./math.min.js"></script>
+<script src="./blochsphere.js"></script>
+</head>
+<body class="white">
+
+<div class="centeredDiv">
+<canvas id="canvas" width="800" height="600">
+  Sorry, this demo requires a web browser which supports HTML5 canvas!
+</canvas>
+</div>
+
+<table>
+<tr><td class="bold">Press enter</td><td>&rarr;</td><td>to run/restart the simulation</td></tr>
+<tr><td class="bold">Press p</td><td>&rarr;</td><td>to pause/un-pause the simulation</td></tr>
+<tr><td class="bold">Press b</td><td>&rarr;</td><td>toggle background color</td></tr>
+<tr><td class="bold">Press c</td><td>&rarr;</td><td>toggle pointer color</td></tr>
+<tr><td class="bold">Press l</td><td>&rarr;</td><td>toggle tracer line color</td></tr>
+<tr><td class="bold">Mouse</td><td>&rarr;</td><td>rotate around origin x and y axis</td></tr>
+</table>
+<table>
+<tr><td class="bold">Rabi Frequency (Any complex function of the variable t)</td><td><input onclick="colorWhite(this)" class="white" id="rabi" type="text" value="sin(t)"></td></tr>
+<tr><td class="bold">Max Time In Seconds (how long the simulation will run for)</td><td><input onclick="colorWhite(this)" class="white" id="max_time" type="text" value="40"></td></tr>
+<tr><td class="bold">Starting Position In Radians</td><td>phi:<input onclick="colorWhite(this)" class="white" id="start_phi" type="text" value="0"></td><td>theta:<input onclick="colorWhite(this)" class="white" id="start_theta" type="text" value="0"></td></tr>
+<tr><td class="bold">Points Per Second (0 to 60)</td><td><input onclick="colorWhite(this)" class="white" id="pps" type="text" value="40"></td></tr>
+</table>
+
+</body>
+</html>
