@@ -310,6 +310,29 @@ function checkParser() {
   console.log(newParser.eval('f(t)'));
 }
 
+function getPresetsAndRun() {
+  if (is_running || was_running) {
+    ticker.stop()
+    ticker = null;
+    lines = [ ];
+    line_index = 0;
+    past_coordinates =[ ];
+    radius = 8;
+  }
+  rabi_freq = document.getElementById("rabi").value;
+  max_time = document.getElementById("max_time").value;
+  purity = document.getElementById("purity").value;
+  // start_phi = document.getElementById("start_phi").value;
+  // start_theta = document.getElementById("start_theta").value;
+  start_phi = null;
+  start_theta = null;
+  pps = document.getElementById("pps").value;
+  if (errorCheck(rabi_freq, max_time, start_phi, start_theta, purity, pps)) {
+    is_running = true;
+    runSimulation();
+  }
+}
+
 // add key event listeners once the page loads
 document.addEventListener('keydown', function(e) {
   var code = e.keyCode;
@@ -359,26 +382,7 @@ document.addEventListener('keydown', function(e) {
       }
       break;
     case 13:
-      if (is_running || was_running) {
-        ticker.stop()
-        ticker = null;
-        lines = [ ];
-        line_index = 0;
-        past_coordinates =[ ];
-        radius = 8;
-      }
-      rabi_freq = document.getElementById("rabi").value;
-      max_time = document.getElementById("max_time").value;
-      purity = document.getElementById("purity").value;
-      // start_phi = document.getElementById("start_phi").value;
-      // start_theta = document.getElementById("start_theta").value;
-      start_phi = null;
-      start_theta = null;
-      pps = document.getElementById("pps").value;
-      if (errorCheck(rabi_freq, max_time, start_phi, start_theta, purity, pps)) {
-        is_running = true;
-        runSimulation();
-      }
+      getPresetsAndRun();
       break;
     default:
       return;
