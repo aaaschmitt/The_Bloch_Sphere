@@ -99,7 +99,7 @@ function computeHamiltonian(t) {
   var complex_val = func_vals[1];
   var matrix1 = math.multiply(raise_op, func_val);
   var matrix2 = math.multiply(lower_op, complex_val);
-  var matrix3 = math.add(matrix1, matrix2);
+  var matrix3 = math.add(matrix2, matrix1);
   var matrix4 = math.subtract(sig_z, matrix3);
   var ham = math.multiply(matrix4, hbar/2);
   return ham;
@@ -233,6 +233,7 @@ function runSimulation() {
     } else {
       ticker.stop()
       is_running = false;
+      was_running = true;
     }
   }
 
@@ -255,6 +256,8 @@ function runSimulation() {
   ticker = new DemoUtils.Ticker(pps, updateDrawing);
   ticker.start()
 }
+
+
 
 function errorCheck(f, time, p, t, pur, pps) {
   if (f === null) {
@@ -319,7 +322,7 @@ document.addEventListener('keydown', function(e) {
         document.body.className = "white";
       }
       cur_white = !cur_white;
-      if (is_running) {
+      if (is_running || was_running) {
         runSimulation.draw();
       }
       break;
