@@ -192,6 +192,10 @@ function runSimulation() {
     }
   }
 
+  renderer.camera.focal_length = 2.5;
+  // Have the engine handle mouse / camera movement for us.
+  DemoUtils.autoCamera(renderer, 0, 0, -30, 0.40, -1.06, 0, draw);
+
   ticker = new DemoUtils.Ticker(pps, updateDrawing);
   ticker.start()
 }
@@ -255,10 +259,6 @@ function draw() {
   for (k = 0; k < lines.length; k++) {
     renderer.drawPath(lines[k]);
   }
-
-  renderer.camera.focal_length = 2.5;
-  // Have the engine handle mouse / camera movement for us.
-  DemoUtils.autoCamera(renderer, 0, 0, -30, 0.40, -1.06, 0, draw);
 }
 
 // Check for errors in the input before the simulation runs.  Will turn erroneous text boxes red.
