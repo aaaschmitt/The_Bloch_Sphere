@@ -25,6 +25,8 @@ var pps;
 // var phi_start;
 
 // Color Control Varaibles
+var renderer;
+var screen_canvas;
 var cur_white = true;
 var black = new Pre3d.RGBA(0, 0, 0, 1);
 var white = new Pre3d.RGBA(1, 1, 1, 1);
@@ -112,6 +114,24 @@ function twoByOneTranpose(matrix) {
   return math.matrix([[elem1, elem2]]);
 }
 
+// takes in a coordinate in cartesian form and converts to polar
+function convertToPolar(x_co, y_co, z_co) {
+  r_ = Math.sqrt(Math.pow(x_co,2) + Math.pow(y_co,2) + Math.pow(z_co, 2));
+  theta_ = Math.atan(y_co/z_co);
+  phi_ = Math.acos(z_co, r_);
+  
+  return {r: r_, theta: theta_, phi: phi_};
+}
+
+// takes in a coordinate in polar form and converts to cartesian
+function convertToCartesian(r, theta, phi) {
+  x_ = r * Math.cos(theta) * Math.sin(phi);
+  y_ = r * Math.sin(theta) * Math.sin(phi);
+  z_ = r * Math.cos(phi);
+
+  return {x: x_, y: z_, z: y_};
+}
+
 // find expectation values and format as a point to be plotted, 
 // where state is a 2x1 matrix
 function computeExpectationPoint(state) {
@@ -157,73 +177,8 @@ function runSimulation() {
 
   computeBlochSphereValues();
 
-  var screen_canvas = document.getElementById('canvas');
-  var renderer = new Pre3d.Renderer(screen_canvas);
-
-  // draws a line from the center and traces connections from previous points (if they exist)
-  function draw() {
-
-    var arrow_color = colors[arrow_colorIndex];
-
-    // Draw the Bloch Sphere
-    var sphere = Pre3d.ShapeUtils.makeSphere(8, 30, 30);
-    renderer.fill_rgba = new Pre3d.RGBA(0, 0, 0, 0.3);
-    renderer.bufferShape(sphere);
-
-    // Draw Origin Sphere
-    var sphere = Pre3d.ShapeUtils.makeSphere(.3, 15, 15);
-    renderer.fill_rgba = new Pre3d.RGBA(arrow_color.r, arrow_color.g, arrow_color.b, arrow_color.a);
-    renderer.bufferShape(sphere);
-
-    // Draw BackGround as either White or black Initally
-    if (cur_white) {
-      renderer.ctx.setFillColor(1, 1, 1, 1);
-    } else {
-      renderer.ctx.setFillColor(0, 0, 0, 1);
-    }
-    renderer.drawBackground();
-
-    // Set arrow color
-    renderer.ctx.setStrokeColor(arrow_color.r, arrow_color.g, arrow_color.b, arrow_color.a);
-    renderer.ctx.lineWidth = 2;
-
-    // Update Position of Tracing Arrow
-    var line = Pre3d.PathUtils.makeLine({x: 0, y: 0, z:0}, {x:cur.x, y:cur.y, z: cur.z});
-    renderer.drawPath(line);
-
-    renderer.drawBuffer();
-    renderer.emptyBuffer();
-
-    past_coordinates.push(cur)
-
-    // set line color
-    var line_color = colors[line_colorIndex];
-    renderer.ctx.setStrokeColor(line_color.r, line_color.g, line_color.b, line_color.a);
-
-    for (var k = 0; k < 20; ) {
-        k += 1;
-    }
-
-    // Draw Path So Far Between Past Points
-    var p0;
-    var p1;
-    if (past_coordinates.length > 1) {
-      for (k = line_index; k+1 < past_coordinates.length; k++) {
-        p0 = past_coordinates[k];
-        p1 = past_coordinates[k+1];
-        lines.push(Pre3d.PathUtils.makeLine(p0, p1));
-        line_index += 1;
-      }
-    }
-
-    for (k = 0; k < lines.length; k++) {
-      renderer.drawPath(lines[k]);
-    }
-  }
-
-  renderer.camera.focal_length = 2.5;
-  // Have the engine handle mouse / camera movement for us.
-  DemoUtils.autoCamera(renderer, 0, 0, -30, 0.40, -1.06, 0, draw);
+  screen_canvas = document.getElementById('canvas');
+  renderer = new Pre3d.Renderer(screen_canvas);
 
   function updateDrawing(time) {
     if (time < max_steps) {
@@ -237,28 +192,76 @@ function runSimulation() {
     }
   }
 
-  function convertToPolar(x_co, y_co, z_co) {
-    r_ = Math.sqrt(Math.pow(x_co,2) + Math.pow(y_co,2) + Math.pow(z_co, 2));
-    theta_ = Math.atan(y_co/z_co);
-    phi_ = Math.acos(z_co, r_);
-    
-    return {r: r_, theta: theta_, phi: phi_};
-  }
-
-  function convertToCartesian(r, theta, phi) {
-    x_ = r * Math.cos(theta) * Math.sin(phi);
-    y_ = r * Math.sin(theta) * Math.sin(phi);
-    z_ = r * Math.cos(phi);
-
-    return {x: x_, y: z_, z: y_};
-  }
-
   ticker = new DemoUtils.Ticker(pps, updateDrawing);
   ticker.start()
 }
 
+// draws a line from the center and traces connections from previous points (if they exist)
+function draw() {
 
+  var arrow_color = colors[arrow_colorIndex];
 
+  // Draw the Bloch Sphere
+  var sphere = Pre3d.ShapeUtils.makeSphere(8, 30, 30);
+  renderer.fill_rgba = new Pre3d.RGBA(0, 0, 0, 0.3);
+  renderer.bufferShape(sphere);
+
+  // Draw Origin Sphere
+  var sphere = Pre3d.ShapeUtils.makeSphere(.3, 15, 15);
+  renderer.fill_rgba = new Pre3d.RGBA(arrow_color.r, arrow_color.g, arrow_color.b, arrow_color.a);
+  renderer.bufferShape(sphere);
+
+  // Draw BackGround as either White or black Initally
+  if (cur_white) {
+    renderer.ctx.setFillColor(1, 1, 1, 1);
+  } else {
+    renderer.ctx.setFillColor(0, 0, 0, 1);
+  }
+  renderer.drawBackground();
+
+  // Set arrow color
+  renderer.ctx.setStrokeColor(arrow_color.r, arrow_color.g, arrow_color.b, arrow_color.a);
+  renderer.ctx.lineWidth = 2;
+
+  // Update Position of Tracing Arrow
+  var line = Pre3d.PathUtils.makeLine({x: 0, y: 0, z:0}, {x:cur.x, y:cur.y, z: cur.z});
+  renderer.drawPath(line);
+
+  renderer.drawBuffer();
+  renderer.emptyBuffer();
+
+  past_coordinates.push(cur)
+
+  // set line color
+  var line_color = colors[line_colorIndex];
+  renderer.ctx.setStrokeColor(line_color.r, line_color.g, line_color.b, line_color.a);
+
+  for (var k = 0; k < 20; ) {
+      k += 1;
+  }
+
+  // Draw Path So Far Between Past Points
+  var p0;
+  var p1;
+  if (past_coordinates.length > 1) {
+    for (k = line_index; k+1 < past_coordinates.length; k++) {
+      p0 = past_coordinates[k];
+      p1 = past_coordinates[k+1];
+      lines.push(Pre3d.PathUtils.makeLine(p0, p1));
+      line_index += 1;
+    }
+  }
+
+  for (k = 0; k < lines.length; k++) {
+    renderer.drawPath(lines[k]);
+  }
+
+  renderer.camera.focal_length = 2.5;
+  // Have the engine handle mouse / camera movement for us.
+  DemoUtils.autoCamera(renderer, 0, 0, -30, 0.40, -1.06, 0, draw);
+}
+
+// Check for errors in the input before the simulation runs.  Will turn erroneous text boxes red.
 function errorCheck(f, time, p, t, pur, pps) {
   if (f === null) {
     document.getElementById("rabi").className = "input_error";
@@ -346,22 +349,22 @@ document.addEventListener('keydown', function(e) {
       }
       cur_white = !cur_white;
       if (is_running || was_running) {
-        runSimulation.draw();
+        draw();
       }
       break;
     case 67:
-      if (is_running) {
+      if (is_running || was_running) {
         arrow_colorIndex += 1;
         if (arrow_colorIndex > colors.length-1) {
           arrow_colorIndex = 0;
-          runSimulation.draw();
+          draw();
         } else {
-          runSimulation.draw();
+          draw();
         }
       }
       break;
     case 76:
-      if (is_running) {
+      if (is_running || was_running) {
         line_colorIndex += 1;
         if (line_colorIndex > colors.length-1) {
           line_colorIndex = 0;
@@ -378,7 +381,7 @@ document.addEventListener('keydown', function(e) {
       } else if (was_running) {
         ticker.start()
         is_running = true;
-        was_running = false;
+        was_running = true;
       }
       break;
     case 13:
